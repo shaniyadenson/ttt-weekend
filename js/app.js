@@ -2,7 +2,12 @@
 const winningCombos = [
   [0, 1, 2],
   [3, 4, 5],
-  [6, 7, 8]
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [2, 4, 6]
   
 ]
 
@@ -11,18 +16,18 @@ const winningCombos = [
 let board, turn, winner
 
 /*------------------------ Cached Element References ------------------------*/
-const form = document.querySelector("form")
-const squareEls = document.querySelector(".boardSquare")
+const squareEls = document.querySelectorAll('section > div')
 const messageEl = document.querySelector("#message")
-const resetBtn = document.querySelector("#reset-button")
-//console.log(squareEls);
+const resetBtnEl = document.querySelector("button")
 //console.log(messageEl);
 
 /*----------------------------- Event Listeners -----------------------------*/
 
-document.querySelector('section.board').addEventListener('click', handleClick)
-form.addEventListener('reset', init)
+squareEls.forEach(square => {
+  square.addEventListener('click', handleClick)
+})
 
+resetBtnEl.addEventListener('click', init)
 /*-------------------------------- Functions --------------------------------*/
 init()
 
@@ -39,59 +44,54 @@ render()
 
 
 function handleClick(evt) {
-const sqIdx = parseInt(evt.target.id)
+  // console.log('whoo')
 
-if (board[sqIdx] !== 'null') return;
-// if (board[sqIdx] !== null) {
-//   return
-// } else if (winner !== null) {
-//   return
-// } 
-board[sqIdx] = turn
-turn = turn * (-1)
-getWinner()
-render()
+  let sqIdx = parseInt(evt.target.id.replace('sq', ''))
+  
+  if(board[sqIdx] || winner) {
+    return
+  }
+  board[sqIdx] = turn
+  turn *= -1
+  winner = getWinner()
+  render()
 
 }
 
 function render () {
-  board.forEach(function(square) { 
-    if (square === null) {
-      squareEls.textContent = ''
-      } else if (square === 1) {
-        squareEls.textContent = 'X'
-      } else if (square === -1) {
-        squareEls.textContent = 'O'
-      }
-  
+
+  board.forEach((cell, idx) => {
+    let cellLetter
+    if (cell === 1) {
+      cellLetter = 'X'
+    } else if (cell === -1) {
+      cellLetter = 'O'
+    } else if (cell === null) {
+      cellLetter = ''
+    }
+    squareEls[idx].textContent = cellLetter
   })
 
-  if (winner === null) {
-    messageEl.textContent = `It's Player ${turn}'s turn!`
-    } else if (winner === 'T') {
-    messageEl.textContent = "It is a tie!"
-    } else if (winner === 1) {
-    messageEl.textContent = `Player ${winner} has won!`
-    } else if (winner === -1) {
-    messageEl.textContent = `Player ${winner} has won!`
-    }
-
-
+  if (!winner) {
+    messageEl.textContent = `It is ${turn === 1 ? 'x' : 'O'}'s turn`
+  } else if (winner === 'T') {
+    messageEl.textContent = `Cat's game.`
+  } else {
+    messageEl.textContent = `Congratulations ${turn === 1 ? 'X' : 'O'}!!`
+  }
 }
   
 
 
 function getWinner() {
-  winningCombos.forEach(combo => {
-    if (Math.abs(board[combo[0]] + board[combo[1]] + board[combo[2]]) === 3) {
-      winner = turn
-    } else if (Math.abs(board[combo[0]] + board[combo[1]] + board[combo[2]]) === -3) {
-      winner = turn
-    } else if (!board.includes(null)) {
-      winner = "T"
-    } else {
-      return null
-    }
-  })
+  for (let i = 0; i < winningCombos.length; i++) {
+    let sum = board[winningCombos[i][0]] + board[winningCombos[i][1]] + board[winningCombos[i][2]]
+    if (Math.abs(sum) === 3) return board[winningCombos[i][0]]
+  }
 
+  if (!board.includes(null)) {
+    return 'T'
+  } else {
+    return null
+  }
 }
