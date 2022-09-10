@@ -77,7 +77,7 @@ function render () {
   } else if (winner === 'T') {
     messageEl.textContent = `Cat's game.`
   } else {
-    messageEl.textContent = `Congratulations ${turn === 1 ? 'X' : 'O'}!!`
+    messageEl.textContent = `Congratulations ${winner === 1 ? 'X' : 'O'}!!`
   }
 }
   
